@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Regency Alliance'),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -43,7 +43,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   String home = "https://bit.ly/3gTgpaE";
   @override
-  void initState() {
+  void initState() async {
     super.initState();
     // Enable virtual display.
     if (Platform.isAndroid) WebView.platform = AndroidWebView();
