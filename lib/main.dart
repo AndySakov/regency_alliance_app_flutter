@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_webview_pro/webview_flutter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,12 +41,12 @@ class MyHomePageState extends State<MyHomePage> {
 
   int loadingProgress = 0;
 
-  String home = "https://bit.ly/3gTgpaE";
+  String home = "https://ebsandbox.regencyalliance.com";
   @override
-  void initState() async {
+  void initState() {
     super.initState();
     // Enable virtual display.
-    if (Platform.isAndroid) WebView.platform = AndroidWebView();
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   Future<void> refresh() async {
@@ -71,6 +71,16 @@ class MyHomePageState extends State<MyHomePage> {
 
     // 5
     return NavigationDecision.prevent;
+  }
+
+  JavascriptChannel _toasterJavascriptChannel(BuildContext context) {
+    return JavascriptChannel(
+        name: 'Toaster',
+        onMessageReceived: (JavascriptMessage message) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message.message)),
+          );
+        });
   }
 
   @override
@@ -125,28 +135,34 @@ class MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: WebView(
-        gestureNavigationEnabled: true,
-        initialUrl: home,
-        onWebViewCreated: ((controller) => webController.complete(controller)),
-        allowsInlineMediaPlayback: true,
-        javascriptMode: JavascriptMode.unrestricted,
-        onProgress: (progress) {
-          setState(() {
-            loadingProgress = progress;
-          });
-        },
-        onPageStarted: (c) {
-          setState(() {
-            isLoading = true;
-          });
-        },
-        onPageFinished: (c) {
-          setState(() {
-            isLoading = false;
-          });
-        },
-      ),
+      body: Builder(builder: (context) {
+        return WebView(
+          gestureNavigationEnabled: true,
+          initialUrl: home,
+          onWebViewCreated: ((controller) =>
+              webController.complete(controller)),
+          allowsInlineMediaPlayback: true,
+          javascriptMode: JavascriptMode.unrestricted,
+          javascriptChannels: <JavascriptChannel>{
+            _toasterJavascriptChannel(context),
+          },
+          onProgress: (progress) {
+            setState(() {
+              loadingProgress = progress;
+            });
+          },
+          onPageStarted: (c) {
+            setState(() {
+              isLoading = true;
+            });
+          },
+          onPageFinished: (c) {
+            setState(() {
+              isLoading = false;
+            });
+          },
+        );
+      }),
     );
   }
 }
